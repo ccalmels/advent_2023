@@ -1,49 +1,46 @@
 use std::io::{BufRead, Lines};
 
-fn calibration_value_part1(line: &str) -> (u32, u32, usize, usize)
-{
-    let (first_digit, last_digit, line_end, line_start);
-
-    if let Some(i) = line.find(|c: char|c.is_ascii_digit()) {
-        line_end = i;
-        first_digit = line.chars().nth(i).unwrap() as u32 - '0' as u32;
-    } else {
-        line_end = line.len();
-        first_digit = 0;
-    }
-
-    if let Some(i) = line.rfind(|c: char|c.is_ascii_digit()) {
-        line_start = i + 1;
-        last_digit = line.chars().nth(i).unwrap() as u32 - '0' as u32;
-    } else {
-        line_start = 0;
-        last_digit = 0;
-    }
-
-    (first_digit, last_digit, line_end, line_start)
-}
-
-fn calibration_value(line: &str) -> (u32, u32)
-{
+fn calibration_value(line: &str) -> (u32, u32) {
     static DIGIT_STRINGS: &[&str] =
         &[ "one", "two", "three", "four", "five", "six", "seven", "eight", "nine" ];
 
-    let (mut first_digit, mut last_digit, mut line_end, mut line_start) = calibration_value_part1(line);
-    let part1 = first_digit * 10 + last_digit;
+    let (mut first_digit, mut last_digit) = (0, 0);
+    let (mut first_digit_s, mut last_digit_s) = (None, None);
 
-    for (idx, digit) in DIGIT_STRINGS.iter().enumerate() {
-        if let Some(i) = line[0..line_end].find(digit) {
-            line_end = i + digit.len() - 1;
-            first_digit = idx as u32 + 1;
+    for (i, c) in line.chars().enumerate() {
+        if c.is_ascii_digit() {
+            first_digit = c as u32 - '0' as u32;
+            break;
         }
 
-        if let Some(i) = line[line_start..].rfind(digit) {
-            line_start = i + line_start + 1;
-            last_digit = idx as u32 + 1;
+        if first_digit_s.is_none() {
+            for (value_1, digit) in DIGIT_STRINGS.iter().enumerate() {
+                if line[i..].starts_with(digit) {
+                    first_digit_s = Some(value_1 as u32 + 1);
+                }
+            }
         }
     }
 
-    (part1, first_digit * 10 + last_digit)
+    for (i, c) in line.chars().rev().enumerate() {
+        if c.is_ascii_digit() {
+            last_digit = c as u32 - '0' as u32;
+            break;
+        }
+
+        if last_digit_s.is_none() {
+            for (value_1, digit) in DIGIT_STRINGS.iter().enumerate() {
+                if line[line.len() - i - 1..].starts_with(digit) {
+                    last_digit_s = Some(value_1 as u32 + 1);
+                }
+            }
+        }
+    }
+
+    (
+        first_digit * 10 + last_digit,
+        first_digit_s.unwrap_or(first_digit) * 10 + last_digit_s.unwrap_or(last_digit)
+    )
 }
 
 fn resolve<T>(lines: Lines<T>) -> (u32, u32)
