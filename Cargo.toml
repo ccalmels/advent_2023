@@ -8,3 +8,4 @@ automod = "1.0.13"
 clap = { version = "4.4.10", features = ["derive"] }
 inventory = "0.3.13"
 rayon = "1.8.0"
+regex = "1.10.2"
