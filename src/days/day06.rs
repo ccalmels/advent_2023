@@ -80,10 +80,7 @@ where
         distance: total_distance.parse::<i64>().unwrap(),
     };
 
-    (
-        races.iter().map(winners).product(),
-        winners(&total_race),
-    )
+    (races.iter().map(winners).product(), winners(&total_race))
 }
 
 #[test]

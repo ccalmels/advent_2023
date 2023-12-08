@@ -1,8 +1,9 @@
 use std::io::{BufRead, Lines};
 
 fn calibration_value(line: &str) -> (u32, u32) {
-    static DIGIT_STRINGS: &[&str] =
-        &[ "one", "two", "three", "four", "five", "six", "seven", "eight", "nine" ];
+    static DIGIT_STRINGS: &[&str] = &[
+        "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+    ];
 
     let (mut first_digit, mut last_digit) = (0, 0);
     let (mut first_digit_s, mut last_digit_s) = (None, None);
@@ -39,7 +40,7 @@ fn calibration_value(line: &str) -> (u32, u32) {
 
     (
         first_digit * 10 + last_digit,
-        first_digit_s.unwrap_or(first_digit) * 10 + last_digit_s.unwrap_or(last_digit)
+        first_digit_s.unwrap_or(first_digit) * 10 + last_digit_s.unwrap_or(last_digit),
     )
 }
 
@@ -47,7 +48,7 @@ fn resolve<T>(lines: Lines<T>) -> (u32, u32)
 where
     T: BufRead,
 {
-    lines.fold((0,0), |(part1, part2), line| {
+    lines.fold((0, 0), |(part1, part2), line| {
         let line = line.unwrap();
         let (c1, c2) = calibration_value(&line);
 

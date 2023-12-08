@@ -6,9 +6,12 @@ struct Bag {
     b: u32,
 }
 
-fn bag_part(line: &str) -> (bool, u32)
-{
-    const BAG: Bag = Bag { r: 12, g: 13, b: 14 };
+fn bag_part(line: &str) -> (bool, u32) {
+    const BAG: Bag = Bag {
+        r: 12,
+        g: 13,
+        b: 14,
+    };
     let games = line.split(": ").nth(1).unwrap();
     let mut result = true;
     let mut min_bag = Bag { r: 0, g: 0, b: 0 };
@@ -17,10 +20,10 @@ fn bag_part(line: &str) -> (bool, u32)
         for color in game.split(", ") {
             let split = color.split(' ').collect::<Vec<_>>();
             let n = split[0].parse::<u32>().unwrap();
-            let (min_bag_n, bag_n) =  match split[1] {
-                "red" => { (&mut min_bag.r, BAG.r) }
-                "green" => { (&mut min_bag.g, BAG.g) }
-                "blue" => { (&mut min_bag.b, BAG.b) }
+            let (min_bag_n, bag_n) = match split[1] {
+                "red" => (&mut min_bag.r, BAG.r),
+                "green" => (&mut min_bag.g, BAG.g),
+                "blue" => (&mut min_bag.b, BAG.b),
                 _ => panic!(),
             };
 

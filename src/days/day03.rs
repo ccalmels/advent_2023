@@ -86,13 +86,7 @@ where
         .filter_map(|&a| {
             let values = numbers
                 .iter()
-                .filter_map(|n| {
-                    if n.contains(a) {
-                        Some(n.value)
-                    } else {
-                        None
-                    }
-                })
+                .filter_map(|n| if n.contains(a) { Some(n.value) } else { None })
                 .collect::<Vec<_>>();
 
             if values.len() > 1 {

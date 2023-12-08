@@ -86,17 +86,15 @@ impl HandValue {
         }
 
         if j_count > 0 {
-            let max_card = cards
-                .iter_mut()
-                .max_by(|a, b| {
-                    let ret = a.0.cmp(&b.0);
+            let max_card = cards.iter_mut().max_by(|a, b| {
+                let ret = a.0.cmp(&b.0);
 
-                    if ret == Equal {
-                        a.1.cmp(&b.1)
-                    } else {
-                        ret
-                    }
-                });
+                if ret == Equal {
+                    a.1.cmp(&b.1)
+                } else {
+                    ret
+                }
+            });
             if let Some(max_card) = max_card {
                 max_card.0 += j_count;
             } else {
