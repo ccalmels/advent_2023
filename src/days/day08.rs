@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::io::{BufRead, Lines};
 
-fn gcd(a: u64, b: u64) -> u64 {
+fn gcd(a: usize, b: usize) -> usize {
     let (mut max, mut min) = if a > b { (a, b) } else { (b, a) };
 
     loop {
@@ -15,7 +15,7 @@ fn gcd(a: u64, b: u64) -> u64 {
     }
 }
 
-fn lcm(a: u64, b: u64) -> u64 {
+fn lcm(a: usize, b: usize) -> usize {
     a * b / gcd(a, b)
 }
 
@@ -26,7 +26,28 @@ fn check_lcm() {
     assert_eq!(lcm(1, 23456), 23456);
 }
 
-fn resolve<T>(lines: Lines<T>) -> (u64, u64)
+fn compute(path: &[(usize, usize)], start: usize, ends: &[usize], sequence: &[bool]) -> usize {
+    let mut c = start;
+    let mut counter = 1;
+    let mut sequence_index = 0;
+
+    loop {
+        c = if sequence[sequence_index] {
+            path[c].0
+        } else {
+            path[c].1
+        };
+
+        if ends.contains(&c) {
+            return counter;
+        }
+
+        counter += 1;
+        sequence_index = (sequence_index + 1) % sequence.len();
+    }
+}
+
+fn resolve<T>(lines: Lines<T>) -> (usize, usize)
 where
     T: BufRead,
 {
@@ -42,9 +63,9 @@ where
             _ => panic!(""),
         })
         .collect::<Vec<_>>();
-    let mut currents = vec![];
-    let mut ends = vec![];
-    let (mut index_current, mut index_zzz) = (None, None);
+    let mut starting_z = vec![];
+    let mut ending_z = vec![];
+    let (mut index_aaa, mut index_zzz) = (None, None);
 
     lines.next();
 
@@ -58,14 +79,14 @@ where
         let right = &line[12..15];
 
         if &line[2..3] == "A" {
-            currents.push(graph.len());
+            starting_z.push(graph.len());
 
             if &line[0..2] == "AA" {
-                index_current = Some(graph.len());
+                index_aaa = Some(graph.len());
             }
         }
         if &line[2..3] == "Z" {
-            ends.push(graph.len());
+            ending_z.push(graph.len());
 
             if &line[0..2] == "ZZ" {
                 index_zzz = Some(graph.len());
@@ -78,67 +99,26 @@ where
         );
     }
 
-    let mut left = vec![0; graph.len()];
-    let mut right = vec![0; graph.len()];
+    let mut path = vec![(0, 0); graph.len()];
 
     for (index, l, r) in graph.values() {
-        let l = graph.get(l).unwrap();
-        let r = graph.get(r).unwrap();
-
-        left[*index] = l.0;
-        right[*index] = r.0;
+        path[*index] = (graph.get(l).unwrap().0, graph.get(r).unwrap().0);
     }
 
-    let mut sequence_index = 0;
-    let mut counter = 0;
+    let part1;
 
-    if let Some(mut index_current) = index_current {
+    if let Some(index_aaa) = index_aaa {
         let index_zzz = index_zzz.unwrap();
 
-        while index_current != index_zzz {
-            counter += 1;
-
-            index_current = if sequence[sequence_index] {
-                left[index_current]
-            } else {
-                right[index_current]
-            };
-
-            sequence_index = (sequence_index + 1) % sequence.len();
-        }
+        part1 = compute(&path, index_aaa, &[index_zzz], &sequence);
+    } else {
+        part1 = 0;
     }
 
-    let part1 = counter;
-
-    sequence_index = 0;
-    counter = 0;
-    let mut results = vec![];
-
-    while !currents.is_empty() {
-        counter += 1;
-
-        currents = currents
-            .into_iter()
-            .filter_map(|c| {
-                let c = if sequence[sequence_index] {
-                    left[c]
-                } else {
-                    right[c]
-                };
-
-                if ends.contains(&c) {
-                    results.push(counter);
-                    None
-                } else {
-                    Some(c)
-                }
-            })
-            .collect::<Vec<_>>();
-
-        sequence_index = (sequence_index + 1) % sequence.len();
-    }
-
-    let part2 = results.into_iter().fold(1, |acc, num| lcm(acc, num));
+    let part2 = starting_z
+        .iter()
+        .map(|&s| compute(&path, s, &ending_z, &sequence))
+        .fold(1, lcm);
 
     (part1, part2)
 }
