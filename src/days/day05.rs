@@ -298,10 +298,7 @@ humidity-to-location map:
 56 93 4";
     use std::io::Cursor;
 
-    let (part1, part2) = resolve(Cursor::new(TEST).lines());
-
-    assert_eq!(part1, 35);
-    assert_eq!(part2, 46);
+    assert_eq!(resolve(Cursor::new(TEST).lines()), (35, 46));
 }
 
 fn resolve_string<T>(lines: Lines<T>) -> (String, String)

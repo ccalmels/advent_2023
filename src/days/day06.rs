@@ -89,10 +89,7 @@ fn check() {
 Distance:  9  40  200";
     use std::io::Cursor;
 
-    let (part1, part2) = resolve(Cursor::new(TEST).lines());
-
-    assert_eq!(part1, 288);
-    assert_eq!(part2, 71503);
+    assert_eq!(resolve(Cursor::new(TEST).lines()), (288, 71503));
 }
 
 fn resolve_string<T>(lines: Lines<T>) -> (String, String)

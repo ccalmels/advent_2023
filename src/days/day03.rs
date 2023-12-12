@@ -114,10 +114,7 @@ fn check() {
 .664.598..";
     use std::io::Cursor;
 
-    let (part1, part2) = resolve(Cursor::new(TEST).lines());
-
-    assert_eq!(part1, 4361);
-    assert_eq!(part2, 467835);
+    assert_eq!(resolve(Cursor::new(TEST).lines()), (4361, 467835));
 }
 
 fn resolve_string<T>(lines: Lines<T>) -> (String, String)

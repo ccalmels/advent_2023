@@ -71,10 +71,8 @@ zoneight234
 7pqrstsixteen";
     use std::io::Cursor;
 
-    let (part1, _) = resolve(Cursor::new(TEST1).lines());
-    assert_eq!(part1, 142);
-    let (_, part2) = resolve(Cursor::new(TEST2).lines());
-    assert_eq!(part2, 281);
+    assert_eq!(resolve(Cursor::new(TEST1).lines()).0, 142);
+    assert_eq!(resolve(Cursor::new(TEST2).lines()).1, 281);
 }
 
 fn resolve_string<T>(lines: Lines<T>) -> (String, String)

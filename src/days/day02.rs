@@ -60,9 +60,7 @@ Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
 Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green";
     use std::io::Cursor;
 
-    let (part1, part2) = resolve(Cursor::new(TEST).lines());
-    assert_eq!(part1, 8);
-    assert_eq!(part2, 2286);
+    assert_eq!(resolve(Cursor::new(TEST).lines()), (8, 2286));
 }
 
 fn resolve_string<T>(lines: Lines<T>) -> (String, String)

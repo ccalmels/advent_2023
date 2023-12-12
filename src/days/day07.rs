@@ -267,10 +267,7 @@ KTJJT 220
 QQQJA 483";
     use std::io::Cursor;
 
-    let (part1, part2) = resolve(Cursor::new(TEST).lines());
-
-    assert_eq!(part1, 6440);
-    assert_eq!(part2, 5905);
+    assert_eq!(resolve(Cursor::new(TEST).lines()), (6440, 5905));
 }
 
 fn resolve_string<T>(lines: Lines<T>) -> (String, String)
