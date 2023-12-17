@@ -4,26 +4,33 @@ use std::io::{self, BufRead, BufReader, Lines};
 use std::path::Path;
 use std::time::Instant;
 
-pub struct Paragraph<'a, T> {
-    lines: &'a mut Lines<T>,
-}
-
-pub trait Paragrapher<T> {
-    fn split_paragraph(&mut self) -> Paragraph<T>;
-}
-
-impl<T> Paragrapher<T> for Lines<T>
+pub struct Paragraph<'a, T, F, O>
+where F: Fn(String) -> O,
 {
-    fn split_paragraph(&mut self) -> Paragraph<T> {
-        Paragraph { lines: self }
+    lines: &'a mut Lines<T>,
+    transform: F,
+}
+
+pub trait Paragrapher<T, F, O>
+where F: Fn(String) -> O,
+{
+    fn split_paragraph(&mut self, transfom: F) -> Paragraph<T, F, O>;
+}
+
+impl<T, F, O> Paragrapher<T, F, O> for Lines<T>
+where F: Fn(String) -> O,
+{
+    fn split_paragraph(&mut self, transform: F) -> Paragraph<T, F, O> {
+        Paragraph { lines: self, transform }
     }
 }
 
-impl<T> Iterator for Paragraph<'_, T>
+impl<T, F, O> Iterator for Paragraph<'_, T, F, O>
 where
     T: BufRead,
+    F: Fn(String) -> O,
 {
-    type Item = Vec<String>;
+    type Item = Vec<O>;
 
     fn next(&mut self) -> Option<Self::Item> {
         let mut p = vec![];
@@ -34,7 +41,7 @@ where
             if line.is_empty() {
                 return Some(p);
             } else {
-                p.push(line);
+                p.push((self.transform)(line));
             }
         }
 

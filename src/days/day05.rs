@@ -208,13 +208,13 @@ fn resolve<T>(mut lines: Lines<T>) -> (i64, i64)
 where
     T: BufRead,
 {
-    let mut para_iter = lines.split_paragraph();
+    let mut para_iter = lines.split_paragraph(|s| {
+        s.split_whitespace()
+            .filter_map(|s| s.parse::<i64>().ok())
+            .collect::<Vec<_>>()
+    });
 
-    let mut seeds = para_iter.next().unwrap()[0]
-        .split_whitespace()
-        .skip(1)
-        .filter_map(|s| s.parse::<i64>().ok())
-        .collect::<Vec<_>>();
+    let mut seeds = para_iter.next().unwrap()[0].clone();
     let mut seeds_ranges = seeds
         .iter()
         .step_by(2)
@@ -225,12 +225,7 @@ where
     for p in para_iter {
         let mut maps = Maps::new();
 
-        for n in p.into_iter().skip(1) {
-            let numbers = n
-                .split_whitespace()
-                .map(|n| n.parse::<i64>().unwrap())
-                .collect::<Vec<_>>();
-
+        for numbers in p.into_iter().skip(1) {
             assert_eq!(numbers.len(), 3);
             maps.add_sorted(numbers[0], numbers[1], numbers[2]);
         }

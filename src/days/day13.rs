@@ -9,8 +9,7 @@ struct Pattern {
 }
 
 impl Pattern {
-    fn new(grid: Vec<String>) -> Self {
-        let grid: Vec<Vec<char>> = grid.into_iter().map(|s| s.chars().collect()).collect();
+    fn new(grid: Vec<Vec<char>>) -> Self {
         let w = grid[0].len();
         let h = grid.len();
 
@@ -73,7 +72,7 @@ where
     T: BufRead,
 {
     lines
-        .split_paragraph()
+        .split_paragraph(|s| s.chars().collect())
         .map(Pattern::new)
         .fold((0, 0), |(p1, p2), pattern| {
             let (v1, v2) = pattern.find_vertical();
