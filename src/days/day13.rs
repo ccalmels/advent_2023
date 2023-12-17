@@ -1,3 +1,4 @@
+use advent_2023::Paragrapher;
 use std::io::{BufRead, Lines};
 
 #[derive(Debug)]
@@ -8,10 +9,10 @@ struct Pattern {
 }
 
 impl Pattern {
-    fn new(grid: &Vec<Vec<char>>) -> Self {
+    fn new(grid: Vec<String>) -> Self {
+        let grid: Vec<Vec<char>> = grid.into_iter().map(|s| s.chars().collect()).collect();
         let w = grid[0].len();
         let h = grid.len();
-        let grid = grid.clone();
 
         Pattern { grid, w, h }
     }
@@ -67,31 +68,19 @@ impl Pattern {
     }
 }
 
-fn resolve<T>(lines: Lines<T>) -> (usize, usize)
+fn resolve<T>(mut lines: Lines<T>) -> (usize, usize)
 where
     T: BufRead,
 {
-    let mut grid = vec![];
-    let mut patterns = vec![];
+    lines
+        .split_paragraph()
+        .map(Pattern::new)
+        .fold((0, 0), |(p1, p2), pattern| {
+            let (v1, v2) = pattern.find_vertical();
+            let (h1, h2) = pattern.find_horyzontal();
 
-    for line in lines {
-        let line = line.unwrap();
-
-        if line.is_empty() {
-            patterns.push(Pattern::new(&grid));
-            grid.clear();
-        } else {
-            grid.push(line.chars().collect::<Vec<_>>());
-        }
-    }
-    patterns.push(Pattern::new(&grid));
-
-    patterns.iter().fold((0, 0), |(p1, p2), pattern| {
-        let (v1, v2) = pattern.find_vertical();
-        let (h1, h2) = pattern.find_horyzontal();
-
-        (p1 + 100 * h1 + v1, p2 + 100 * h2 + v2)
-    })
+            (p1 + 100 * h1 + v1, p2 + 100 * h2 + v2)
+        })
 }
 
 #[test]

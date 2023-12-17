@@ -1,3 +1,4 @@
+use advent_2023::Paragrapher;
 use std::cmp::Ordering;
 use std::io::{BufRead, Lines};
 
@@ -89,10 +90,6 @@ impl Maps {
         let pos = self.translations.binary_search(&t).unwrap_or_else(|e| e);
 
         self.translations.insert(pos, t);
-    }
-
-    fn clear(&mut self) {
-        self.translations.clear();
     }
 
     fn part1(&self, seeds: &mut [i64]) {
@@ -207,18 +204,17 @@ fn check_range() {
     );
 }
 
-fn resolve<T>(lines: Lines<T>) -> (i64, i64)
+fn resolve<T>(mut lines: Lines<T>) -> (i64, i64)
 where
     T: BufRead,
 {
-    let mut lines = lines;
-    let seeds = lines.next().unwrap().unwrap().clone();
-    let mut seeds = seeds
+    let mut para_iter = lines.split_paragraph();
+
+    let mut seeds = para_iter.next().unwrap()[0]
         .split_whitespace()
         .skip(1)
         .filter_map(|s| s.parse::<i64>().ok())
         .collect::<Vec<_>>();
-    let mut maps = Maps::new();
     let mut seeds_ranges = seeds
         .iter()
         .step_by(2)
@@ -226,36 +222,23 @@ where
         .map(|(&start, &length)| Range::new(start, length))
         .collect::<Vec<_>>();
 
-    lines.next();
-    lines.next();
+    for p in para_iter {
+        let mut maps = Maps::new();
 
-    for line in lines {
-        let line = line.unwrap();
+        for n in p.into_iter().skip(1) {
+            let numbers = n
+                .split_whitespace()
+                .map(|n| n.parse::<i64>().unwrap())
+                .collect::<Vec<_>>();
 
-        if line.is_empty() {
-            continue;
-        }
-
-        let numbers = line
-            .split_whitespace()
-            .filter_map(|n| n.parse::<i64>().ok())
-            .collect::<Vec<_>>();
-
-        if numbers.is_empty() {
-            maps.part1(&mut seeds);
-            seeds_ranges = maps.part2(&seeds_ranges);
-
-            maps.clear();
-        } else {
-            if numbers.len() != 3 {
-                panic!("line: {line}");
-            }
+            assert_eq!(numbers.len(), 3);
             maps.add_sorted(numbers[0], numbers[1], numbers[2]);
         }
+
+        maps.part1(&mut seeds);
+        seeds_ranges = maps.part2(&seeds_ranges);
     }
 
-    maps.part1(&mut seeds);
-    seeds_ranges = maps.part2(&seeds_ranges);
     seeds_ranges.sort_unstable();
 
     (*seeds.iter().min().unwrap(), seeds_ranges[0].start)

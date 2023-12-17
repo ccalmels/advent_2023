@@ -4,6 +4,48 @@ use std::io::{self, BufRead, BufReader, Lines};
 use std::path::Path;
 use std::time::Instant;
 
+pub struct Paragraph<'a, T> {
+    lines: &'a mut Lines<T>,
+}
+
+pub trait Paragrapher<T> {
+    fn split_paragraph(&mut self) -> Paragraph<T>;
+}
+
+impl<T> Paragrapher<T> for Lines<T>
+{
+    fn split_paragraph(&mut self) -> Paragraph<T> {
+        Paragraph { lines: self }
+    }
+}
+
+impl<T> Iterator for Paragraph<'_, T>
+where
+    T: BufRead,
+{
+    type Item = Vec<String>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let mut p = vec![];
+
+        for line in self.lines.by_ref() {
+            let line = line.unwrap();
+
+            if line.is_empty() {
+                return Some(p);
+            } else {
+                p.push(line);
+            }
+        }
+
+        if p.is_empty() {
+            None
+        } else {
+            Some(p)
+        }
+    }
+}
+
 #[derive(Eq)]
 pub struct Day {
     day_filename: &'static str,
