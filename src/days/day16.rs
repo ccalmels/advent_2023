@@ -1,4 +1,3 @@
-use std::collections::VecDeque;
 use std::io::{BufRead, Lines};
 
 #[derive(Debug)]
@@ -79,17 +78,17 @@ fn check_rotation() {
 }
 
 fn energize(contraption: &[Vec<char>], starting: Beam) -> usize {
-    let mut queue = VecDeque::new();
+    let mut stack = vec![];
     let w = contraption[0].len();
     let h = contraption.len();
     let mut energized = vec![vec![false; w]; h];
 
     energized[starting.position.1 as usize][starting.position.0 as usize] = true;
 
-    queue.push_back(starting);
+    stack.push(starting);
 
-    while !queue.is_empty() {
-        let beam = queue.pop_front().unwrap().next();
+    while let Some(beam) = stack.pop() {
+        let beam = beam.next();
 
         if beam.position.0 < 0 || beam.position.1 < 0 {
             // we are outside the contraption
@@ -105,27 +104,27 @@ fn energize(contraption: &[Vec<char>], starting: Beam) -> usize {
 
         match (contraption[y][x], beam.direction) {
             // do forward
-            ('.', _) => queue.push_back(beam),
-            ('|', (0, _)) => queue.push_back(beam),
-            ('-', (_, 0)) => queue.push_back(beam),
+            ('.', _) => stack.push(beam),
+            ('|', (0, _)) => stack.push(beam),
+            ('-', (_, 0)) => stack.push(beam),
             // turn
-            ('/', (0, _)) => queue.push_back(beam.right()),
-            ('/', (_, 0)) => queue.push_back(beam.left()),
-            ('\\', (0, _)) => queue.push_back(beam.left()),
-            ('\\', (_, 0)) => queue.push_back(beam.right()),
+            ('/', (0, _)) => stack.push(beam.right()),
+            ('/', (_, 0)) => stack.push(beam.left()),
+            ('\\', (0, _)) => stack.push(beam.left()),
+            ('\\', (_, 0)) => stack.push(beam.right()),
             // divide
             ('|', (_, 0)) => {
                 if !energized[y][x] {
                     let (l, r) = beam.split();
-                    queue.push_back(l);
-                    queue.push_back(r);
+                    stack.push(l);
+                    stack.push(r);
                 }
             }
             ('-', (0, _)) => {
                 if !energized[y][x] {
                     let (l, r) = beam.split();
-                    queue.push_back(l);
-                    queue.push_back(r);
+                    stack.push(l);
+                    stack.push(r);
                 }
             }
             _ => panic!(),
