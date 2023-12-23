@@ -247,17 +247,14 @@ where
         })
         .collect::<Vec<_>>();
 
-    let mut part1 = 0;
-
-    for s in shapes {
-        if is_accepted_shape(&rules, &s) {
-            for v in s.iter() {
-                part1 += v;
-            }
-        }
-    }
-
-    (part1, part2(&rules))
+    (
+        shapes
+            .into_iter()
+            .filter(|s| is_accepted_shape(&rules, s))
+            .flatten()
+            .sum(),
+        part2(&rules),
+    )
 }
 
 #[test]
