@@ -1,27 +1,35 @@
+use reqwest::header::COOKIE;
 use std::cmp::{Eq, Ord, Ordering};
+use std::env;
 use std::fs::File;
 use std::io::{self, BufRead, BufReader, Lines};
 use std::path::Path;
 use std::time::Instant;
 
 pub struct Paragraph<'a, T, F, O>
-where F: Fn(String) -> O,
+where
+    F: Fn(String) -> O,
 {
     lines: &'a mut Lines<T>,
     transform: F,
 }
 
 pub trait Paragrapher<T, F, O>
-where F: Fn(String) -> O,
+where
+    F: Fn(String) -> O,
 {
     fn split_paragraph(&mut self, transfom: F) -> Paragraph<T, F, O>;
 }
 
 impl<T, F, O> Paragrapher<T, F, O> for Lines<T>
-where F: Fn(String) -> O,
+where
+    F: Fn(String) -> O,
 {
     fn split_paragraph(&mut self, transform: F) -> Paragraph<T, F, O> {
-        Paragraph { lines: self, transform }
+        Paragraph {
+            lines: self,
+            transform,
+        }
     }
 }
 
@@ -87,8 +95,7 @@ impl Day {
 
     fn resolve(&self) -> (u32, String, String) {
         let day_number = self.parse_number();
-        let (part1, part2) =
-            (self.resolve)(read_lines(format!("./inputs/{day_number:0>2}.txt")).unwrap());
+        let (part1, part2) = (self.resolve)(read_lines(day_number).unwrap());
         (day_number, part1, part2)
     }
 }
@@ -111,11 +118,29 @@ impl PartialOrd for Day {
     }
 }
 
-fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
-where
-    P: AsRef<Path>,
-{
-    let file = File::open(filename)?;
+fn read_lines(day_number: u32) -> io::Result<io::Lines<io::BufReader<File>>> {
+    let filename = format!("./inputs/{day_number:0>2}.txt");
+    let path = Path::new(&filename);
+
+    if !path.exists() {
+        let session = env::var("AOC_SESSION").expect("AOC_SESSION not set");
+
+        println!("downloading input for day {day_number}");
+
+        let client = reqwest::blocking::Client::new();
+        let url = format!("https://adventofcode.com/2023/day/{day_number}/input");
+        let mut response = client
+            .get(url)
+            .header(COOKIE, format!("session={session}"))
+            .send()
+            .unwrap();
+
+        let mut file = File::create(path)?;
+
+        io::copy(&mut response, &mut file)?;
+    }
+
+    let file = File::open(path)?;
 
     Ok(io::BufReader::new(file).lines())
 }
