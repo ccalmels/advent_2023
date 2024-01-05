@@ -1,6 +1,6 @@
 use std::io::{BufRead, Lines};
 
-fn go_north(grid: &mut Vec<Vec<char>>) {
+fn go_north(grid: &mut Vec<Vec<u8>>) {
     let w = grid[0].len();
     let h = grid.len();
 
@@ -10,24 +10,24 @@ fn go_north(grid: &mut Vec<Vec<char>>) {
         for y in (0..h).rev() {
             let c = &mut grid[y][x];
 
-            if *c == '#' {
+            if *c == b'#' {
                 for j in 0..count {
-                    grid[y + j + 1][x] = 'O';
+                    grid[y + j + 1][x] = b'O';
                 }
                 count = 0;
-            } else if *c == 'O' {
-                *c = '.';
+            } else if *c == b'O' {
+                *c = b'.';
                 count += 1;
             }
         }
 
         for row in grid.iter_mut().take(count) {
-            row[x] = 'O';
+            row[x] = b'O';
         }
     }
 }
 
-fn go_south(grid: &mut Vec<Vec<char>>) {
+fn go_south(grid: &mut Vec<Vec<u8>>) {
     let w = grid[0].len();
     let h = grid.len();
 
@@ -37,24 +37,24 @@ fn go_south(grid: &mut Vec<Vec<char>>) {
         for y in 0..h {
             let c = &mut grid[y][x];
 
-            if *c == '#' {
+            if *c == b'#' {
                 for j in 0..count {
-                    grid[y - j - 1][x] = 'O';
+                    grid[y - j - 1][x] = b'O';
                 }
                 count = 0;
-            } else if *c == 'O' {
-                *c = '.';
+            } else if *c == b'O' {
+                *c = b'.';
                 count += 1;
             }
         }
 
         for j in 0..count {
-            grid[h - j - 1][x] = 'O';
+            grid[h - j - 1][x] = b'O';
         }
     }
 }
 
-fn go_west(grid: &mut [Vec<char>]) {
+fn go_west(grid: &mut [Vec<u8>]) {
     let w = grid[0].len();
 
     for row in grid.iter_mut() {
@@ -63,24 +63,24 @@ fn go_west(grid: &mut [Vec<char>]) {
         for x in (0..w).rev() {
             let c = &mut row[x];
 
-            if *c == '#' {
+            if *c == b'#' {
                 for j in 0..count {
-                    row[x + j + 1] = 'O';
+                    row[x + j + 1] = b'O';
                 }
                 count = 0;
-            } else if *c == 'O' {
-                *c = '.';
+            } else if *c == b'O' {
+                *c = b'.';
                 count += 1;
             }
         }
 
         for c in row.iter_mut().take(count) {
-            *c = 'O';
+            *c = b'O';
         }
     }
 }
 
-fn go_east(grid: &mut [Vec<char>]) {
+fn go_east(grid: &mut [Vec<u8>]) {
     let w = grid[0].len();
 
     for row in grid.iter_mut() {
@@ -89,31 +89,31 @@ fn go_east(grid: &mut [Vec<char>]) {
         for x in 0..w {
             let c = &mut row[x];
 
-            if *c == '#' {
+            if *c == b'#' {
                 for j in 0..count {
-                    row[x - j - 1] = 'O';
+                    row[x - j - 1] = b'O';
                 }
                 count = 0;
-            } else if *c == 'O' {
-                *c = '.';
+            } else if *c == b'O' {
+                *c = b'.';
                 count += 1;
             }
         }
 
         for j in 0..count {
-            row[w - j - 1] = 'O';
+            row[w - j - 1] = b'O';
         }
     }
 }
 
-fn cycle(grid: &mut Vec<Vec<char>>) {
+fn cycle(grid: &mut Vec<Vec<u8>>) {
     go_north(grid);
     go_west(grid);
     go_south(grid);
     go_east(grid);
 }
 
-fn equal(grid1: &[Vec<char>], grid2: &[Vec<char>]) -> bool {
+fn equal(grid1: &[Vec<u8>], grid2: &[Vec<u8>]) -> bool {
     let w = grid1[0].len();
     let h = grid1.len();
 
@@ -127,9 +127,9 @@ fn equal(grid1: &[Vec<char>], grid2: &[Vec<char>]) -> bool {
     true
 }
 
-fn load(grid: &[Vec<char>]) -> usize {
+fn load(grid: &[Vec<u8>]) -> usize {
     grid.iter().rev().enumerate().fold(0, |load, (index, row)| {
-        load + (index + 1) * row.iter().filter(|&c| *c == 'O').count()
+        load + (index + 1) * row.iter().filter(|&c| *c == b'O').count()
     })
 }
 
@@ -138,7 +138,7 @@ where
     T: BufRead,
 {
     let initial = lines
-        .map(|l| l.unwrap().chars().collect::<Vec<_>>())
+        .map(|l| l.unwrap().as_bytes().to_owned())
         .collect::<Vec<_>>();
     let mut tortoise = initial.clone();
 

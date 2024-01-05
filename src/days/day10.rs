@@ -1,37 +1,37 @@
 use std::io::{BufRead, Lines};
 
-fn get_next_direction(direction: (i32, i32), c: char) -> (i32, i32) {
+fn get_next_direction(direction: (i32, i32), c: u8) -> (i32, i32) {
     match (direction, c) {
         // DOWN
-        ((0, 1), '|') => (0, 1),
-        ((0, 1), 'J') => (-1, 0),
-        ((0, 1), 'L') => (1, 0),
+        ((0, 1), b'|') => (0, 1),
+        ((0, 1), b'J') => (-1, 0),
+        ((0, 1), b'L') => (1, 0),
         // UP
-        ((0, -1), '|') => (0, -1),
-        ((0, -1), '7') => (-1, 0),
-        ((0, -1), 'F') => (1, 0),
+        ((0, -1), b'|') => (0, -1),
+        ((0, -1), b'7') => (-1, 0),
+        ((0, -1), b'F') => (1, 0),
         // RIGHT
-        ((1, 0), '-') => (1, 0),
-        ((1, 0), 'J') => (0, -1),
-        ((1, 0), '7') => (0, 1),
+        ((1, 0), b'-') => (1, 0),
+        ((1, 0), b'J') => (0, -1),
+        ((1, 0), b'7') => (0, 1),
         // LEFT
-        ((-1, 0), '-') => (-1, 0),
-        ((-1, 0), 'L') => (0, -1),
-        ((-1, 0), 'F') => (0, 1),
+        ((-1, 0), b'-') => (-1, 0),
+        ((-1, 0), b'L') => (0, -1),
+        ((-1, 0), b'F') => (0, 1),
         _ => panic!(),
     }
 }
 
-fn get_start_pipe(start_direction: (i32, i32), end_direction: (i32, i32)) -> char {
+fn get_start_pipe(start_direction: (i32, i32), end_direction: (i32, i32)) -> u8 {
     match (start_direction, end_direction) {
-        ((0, -1), (-1, 0)) => 'L',
-        ((0, -1), (0, -1)) => '|',
-        ((0, -1), (1, 0)) => 'J',
+        ((0, -1), (-1, 0)) => b'L',
+        ((0, -1), (0, -1)) => b'|',
+        ((0, -1), (1, 0)) => b'J',
 
-        ((1, 0), (0, -1)) => 'F',
-        ((1, 0), (1, 0)) => '-',
+        ((1, 0), (0, -1)) => b'F',
+        ((1, 0), (1, 0)) => b'-',
 
-        ((0, 1), (1, 0)) => '7',
+        ((0, 1), (1, 0)) => b'7',
         _ => panic!(),
     }
 }
@@ -45,26 +45,28 @@ where
 
     for line in lines {
         let line = line.unwrap();
-        let chars = line.chars().collect::<Vec<_>>();
+        let bytes = line.as_bytes();
 
-        let index = chars.iter().position(|&c| c == 'S');
+        let index = bytes.iter().position(|&c| c == b'S');
         if let Some(index) = index {
             start = (index, grid.len());
         }
 
-        grid.push(chars);
+        grid.push(bytes.to_owned());
     }
 
     let start_direction;
 
     // find next position to start
-    if start.1 > 0 && ['7', '|', 'F'].contains(&grid[start.1 - 1][start.0]) {
+    if start.1 > 0 && [b'7', b'|', b'F'].contains(&grid[start.1 - 1][start.0]) {
         start_direction = (0, -1);
-    } else if start.0 < grid[0].len() - 1 && ['7', '-', 'J'].contains(&grid[start.1][start.0 + 1]) {
+    } else if start.0 < grid[0].len() - 1
+        && [b'7', b'-', b'J'].contains(&grid[start.1][start.0 + 1])
+    {
         start_direction = (1, 0);
-    } else if start.1 < grid.len() - 1 && ['J', '|', 'L'].contains(&grid[start.1 + 1][start.0]) {
+    } else if start.1 < grid.len() - 1 && [b'J', b'|', b'L'].contains(&grid[start.1 + 1][start.0]) {
         start_direction = (0, 1);
-    } else if start.0 > 0 && ['F', '-', 'L'].contains(&grid[start.1][start.0 - 1]) {
+    } else if start.0 > 0 && [b'F', b'-', b'L'].contains(&grid[start.1][start.0 - 1]) {
         start_direction = (-1, 0);
     } else {
         panic!();
@@ -72,13 +74,13 @@ where
 
     let mut direction = start_direction;
     let mut current = (start.0 as i32 + direction.0, start.1 as i32 + direction.1);
-    let mut grid2 = vec![vec!['.'; grid[0].len()]; grid.len()];
+    let mut grid2 = vec![vec![b'.'; grid[0].len()]; grid.len()];
     let mut part1 = 1;
 
     loop {
         let pipe = grid[current.1 as usize][current.0 as usize];
 
-        if pipe == 'S' {
+        if pipe == b'S' {
             break;
         }
 
@@ -98,30 +100,30 @@ where
 
     for y in 0..grid2.len() {
         let mut is_inside = false;
-        let mut entered_pipe = ' ';
+        let mut entered_pipe = b' ';
 
         for x in 0..grid2[0].len() {
             let pipe = grid2[y][x];
 
             match pipe {
-                '.' => {
+                b'.' => {
                     if is_inside {
                         part2 += 1
                     }
                 }
-                '|' => is_inside = !is_inside,
-                'L' | 'F' => entered_pipe = pipe,
-                'J' => {
-                    if entered_pipe == 'F' {
+                b'|' => is_inside = !is_inside,
+                b'L' | b'F' => entered_pipe = pipe,
+                b'J' => {
+                    if entered_pipe == b'F' {
                         is_inside = !is_inside
                     }
                 }
-                '7' => {
-                    if entered_pipe == 'L' {
+                b'7' => {
+                    if entered_pipe == b'L' {
                         is_inside = !is_inside
                     }
                 }
-                '-' => {}
+                b'-' => {}
                 _ => panic!(),
             }
         }

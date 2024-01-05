@@ -3,13 +3,13 @@ use std::io::{BufRead, Lines};
 
 #[derive(Debug)]
 struct Pattern {
-    grid: Vec<Vec<char>>,
+    grid: Vec<Vec<u8>>,
     w: usize,
     h: usize,
 }
 
 impl Pattern {
-    fn new(grid: Vec<Vec<char>>) -> Self {
+    fn new(grid: Vec<Vec<u8>>) -> Self {
         let w = grid[0].len();
         let h = grid.len();
 
@@ -72,7 +72,7 @@ where
     T: BufRead,
 {
     lines
-        .split_paragraph(|s| s.chars().collect())
+        .split_paragraph(|s| s.as_bytes().to_owned())
         .map(Pattern::new)
         .fold((0, 0), |(p1, p2), pattern| {
             let (v1, v2) = pattern.find_vertical();
