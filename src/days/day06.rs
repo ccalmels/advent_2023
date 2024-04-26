@@ -1,7 +1,7 @@
 use std::cmp::Ordering::{Equal, Greater, Less};
 use std::io::{BufRead, Lines};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 enum SecondDegreeResult {
     None,
     One(f64),
@@ -19,6 +19,18 @@ fn second_degree(a: i64, b: i64, c: i64) -> SecondDegreeResult {
             -((b as f64 + (delta as f64).sqrt()) / (2 * a) as f64),
         ),
     }
+}
+
+#[test]
+fn check_second_degree() {
+    // x^2 + 1 = 0
+    assert_eq!(second_degree(1, 0, 1), SecondDegreeResult::None);
+
+    // (x + 1)^2 = 0
+    assert_eq!(second_degree(1, 2, 1), SecondDegreeResult::One(-1.0));
+
+    // x^2 - 1 = 0
+    assert_eq!(second_degree(1, 0, -1), SecondDegreeResult::Two(1.0, -1.0));
 }
 
 #[derive(Debug)]
