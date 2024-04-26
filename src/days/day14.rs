@@ -1,6 +1,6 @@
 use std::io::{BufRead, Lines};
 
-fn go_north(grid: &mut Vec<Vec<u8>>) {
+fn go_north(grid: &mut [Vec<u8>]) {
     let w = grid[0].len();
     let h = grid.len();
 
@@ -27,7 +27,7 @@ fn go_north(grid: &mut Vec<Vec<u8>>) {
     }
 }
 
-fn go_south(grid: &mut Vec<Vec<u8>>) {
+fn go_south(grid: &mut [Vec<u8>]) {
     let w = grid[0].len();
     let h = grid.len();
 
@@ -106,7 +106,7 @@ fn go_east(grid: &mut [Vec<u8>]) {
     }
 }
 
-fn cycle(grid: &mut Vec<Vec<u8>>) {
+fn cycle(grid: &mut [Vec<u8>]) {
     go_north(grid);
     go_west(grid);
     go_south(grid);

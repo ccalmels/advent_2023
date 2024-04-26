@@ -13,7 +13,7 @@ fn card_value(c: char) -> u32 {
     }
 }
 
-fn get_type(cards: &Vec<(u32, u32)>) -> u32 {
+fn get_type(cards: &[(u32, u32)]) -> u32 {
     match cards.len() {
         1 => 7,
         2 => {
