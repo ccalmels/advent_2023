@@ -1,8 +1,8 @@
-use reqwest::header::COOKIE;
+use curl::easy::Easy;
 use std::cmp::{Eq, Ord, Ordering};
 use std::env;
 use std::fs::File;
-use std::io::{self, BufRead, BufReader, Lines};
+use std::io::{self, BufRead, BufReader, Lines, Write};
 use std::path::Path;
 use std::time::Instant;
 
@@ -123,21 +123,20 @@ fn read_lines(day_number: u32) -> io::Result<io::Lines<io::BufReader<File>>> {
     let path = Path::new(&filename);
 
     if !path.exists() {
-        let session = env::var("AOC_SESSION").expect("AOC_SESSION not set");
-
         println!("downloading input for day {day_number}");
 
-        let client = reqwest::blocking::Client::new();
-        let url = format!("https://adventofcode.com/2023/day/{day_number}/input");
-        let mut response = client
-            .get(url)
-            .header(COOKIE, format!("session={session}"))
-            .send()
-            .unwrap();
-
+	let session = env::var("AOC_SESSION").expect("AOC_SESSION not set");
         let mut file = File::create(path)?;
+	let mut handle = Easy::new();
 
-        io::copy(&mut response, &mut file)?;
+	handle.cookie(&format!("session={session}"))?;
+	handle.url(&format!("https://adventofcode.com/2023/day/{day_number}/input"))?;
+
+	handle.write_function(
+	    move |data| {
+		Ok(file.write(data).unwrap())
+	    })?;
+	handle.perform()?;
     }
 
     let file = File::open(path)?;
