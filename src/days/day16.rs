@@ -83,8 +83,6 @@ fn energize(contraption: &[Vec<char>], starting: Beam) -> usize {
     let h = contraption.len();
     let mut energized = vec![vec![false; w]; h];
 
-    energized[starting.position.1 as usize][starting.position.0 as usize] = true;
-
     stack.push(starting);
 
     while let Some(beam) = stack.pop() {
@@ -142,21 +140,21 @@ fn part2(contraption: &[Vec<char>]) -> usize {
     let mut max_energy = 0;
 
     for y in 0..h {
-        let b_right = Beam::new((0, y as i32), (1, 0));
+        let b_right = Beam::new((-1, y as i32), (1, 0));
 
         max_energy = max_energy.max(energize(contraption, b_right));
 
-        let b_left = Beam::new((w as i32 - 1, y as i32), (-1, 0));
+        let b_left = Beam::new((w as i32, y as i32), (-1, 0));
 
         max_energy = max_energy.max(energize(contraption, b_left));
     }
 
     for x in 0..w {
-        let b_down = Beam::new((x as i32, 0), (0, 1));
+        let b_down = Beam::new((x as i32, 0 - 1), (0, 1));
 
         max_energy = max_energy.max(energize(contraption, b_down));
 
-        let b_up = Beam::new((x as i32, h as i32 - 1), (0, -1));
+        let b_up = Beam::new((x as i32, h as i32), (0, -1));
 
         max_energy = max_energy.max(energize(contraption, b_up));
     }
@@ -177,7 +175,7 @@ where
         .collect::<Vec<_>>();
 
     (
-        energize(&contraption, Beam::new((0, 0), (1, 0))),
+        energize(&contraption, Beam::new((-1, 0), (1, 0))),
         part2(&contraption),
     )
 }
