@@ -77,7 +77,7 @@ fn check_rotation() {
     assert_eq!(b.direction, (0, -1));
 }
 
-fn energize(contraption: &[Vec<char>], starting: Beam) -> usize {
+fn energize(contraption: &[Vec<u8>], starting: Beam) -> usize {
     let mut stack = vec![];
     let w = contraption[0].len();
     let h = contraption.len();
@@ -102,23 +102,23 @@ fn energize(contraption: &[Vec<char>], starting: Beam) -> usize {
 
         match (contraption[y][x], beam.direction) {
             // do forward
-            ('.', _) => stack.push(beam),
-            ('|', (0, _)) => stack.push(beam),
-            ('-', (_, 0)) => stack.push(beam),
+            (b'.', _) => stack.push(beam),
+            (b'|', (0, _)) => stack.push(beam),
+            (b'-', (_, 0)) => stack.push(beam),
             // turn
-            ('/', (0, _)) => stack.push(beam.right()),
-            ('/', (_, 0)) => stack.push(beam.left()),
-            ('\\', (0, _)) => stack.push(beam.left()),
-            ('\\', (_, 0)) => stack.push(beam.right()),
+            (b'/', (0, _)) => stack.push(beam.right()),
+            (b'/', (_, 0)) => stack.push(beam.left()),
+            (b'\\', (0, _)) => stack.push(beam.left()),
+            (b'\\', (_, 0)) => stack.push(beam.right()),
             // divide
-            ('|', (_, 0)) => {
+            (b'|', (_, 0)) => {
                 if !energized[y][x] {
                     let (l, r) = beam.split();
                     stack.push(l);
                     stack.push(r);
                 }
             }
-            ('-', (0, _)) => {
+            (b'-', (0, _)) => {
                 if !energized[y][x] {
                     let (l, r) = beam.split();
                     stack.push(l);
@@ -134,7 +134,7 @@ fn energize(contraption: &[Vec<char>], starting: Beam) -> usize {
     energized.into_iter().flatten().filter(|&e| e).count()
 }
 
-fn part2(contraption: &[Vec<char>]) -> usize {
+fn part2(contraption: &[Vec<u8>]) -> usize {
     let w = contraption[0].len();
     let h = contraption.len();
     let mut max_energy = 0;
@@ -167,11 +167,7 @@ where
     T: BufRead,
 {
     let contraption = lines
-        .map(|line| {
-            let line = line.unwrap();
-
-            line.chars().collect::<Vec<_>>()
-        })
+        .map(|line| line.unwrap().as_bytes().to_vec())
         .collect::<Vec<_>>();
 
     (
